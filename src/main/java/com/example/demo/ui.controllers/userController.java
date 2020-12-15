@@ -7,12 +7,15 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestController;
 import UserRest.java;
+import UpdateUserDetailsRequestModel.java;
 
 @RestController
 // inicializando endpoint /users
 @RequestMapping("/users") // http://localhost:8080/users
 
 public class UserController {
+
+    Map<String, UserRest> users;
 
     // declarando metodo getMapping
     @GetMapping()
@@ -33,14 +36,15 @@ public class UserController {
                                 MediaType.APPLICATION_JSON_VALUE
                             }
                 )
-    public ResponseEntity<UserRest> UserRest( @PathVariable String userId)
+    public ResponseEntity<UserRest> getUser( @PathVariable String userId)
     {
-        UserRest returnValue = new UserRest();
-        returnValue.setEmail("test@test.com");
-        returnValue.setFirstName("Franco");
-        returnValue.setLastName("Fonceca");
+        if(users.containsKey(userId))
+        {
+            return new ResponseEntity<>(users.get(userId), HttpStatus.OK);
+        }else{
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        }
 
-        return new ResponseEntity<UserRest>(returnValue, HttpStatus.OK);
     }
 
     // declarando metodo PostMapping
@@ -61,21 +65,41 @@ public class UserController {
         returnValue.setFirstName(UserDetails.getFirstName());
         returnValue.setLastName(UserDetails.getLastName());
 
+        String userId = UUID.randomUUID(),toString();
+        returnValue.setUserId(userId)
+        
+        if(users == null) users = new HashMap<>();
+        users.put(userId, returnValue)
+        
         return new ResponseEntity<UserRest>(returnValue, HttpStatus.OK);
     }
 
     // declarando metodo PutMapping
-    @PutMapping
-    public String updateUser()
+    @PutMapping(path="/{userId}", consumes = {
+        MediaType.APPLICATION_JSON_VALUE,
+        MediaType.APPLICATION_XML_VALUE
+        },
+        produces = {
+                MediaType.APPLICATION_JSON_VALUE,
+                MediaType.APPLICATION_XML_VALUE
+        }   )
+    public UserRest updateUser(@PathVariable String userId, @Valid @RequestBody UserDetailsRequestModel userDetails)
     {
-        return "update user was called";
+        UserRest userDetails = users.get(userId);
+        storedUserDetails.setFirstName(userDetails.getFirstName());
+        storedUserDetails.setLastName(userDetails.getLastName());
+
+        users.put(userId, storedUserDetails)
+        
+        return storedUserDetails;
     }
 
     // declarando metodo DeleteMapping
-    @DeleteMapping
-    public String deleteUser()
+    @DeleteMapping(path="/{id}")
+    public ResponseEntity<Void> deleteUser(@PathVariable String id)
     {
-        return "delete user was called";
+        users.remove(id);
+        RETURN ResponseEntity.noContent().build();
     }
 
 }
