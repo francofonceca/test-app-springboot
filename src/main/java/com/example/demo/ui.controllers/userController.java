@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestController;
 import UserRest.java;
 import UpdateUserDetailsRequestModel.java;
+import UserServiceImpl.java;
+import Autowired.java;
 
 @RestController
 // inicializando endpoint /users
@@ -16,6 +18,9 @@ import UpdateUserDetailsRequestModel.java;
 public class UserController {
 
     Map<String, UserRest> users;
+
+    @Autowired
+    UserService userservice;
 
     // declarando metodo getMapping
     @GetMapping()
@@ -38,10 +43,7 @@ public class UserController {
                 )
     public ResponseEntity<UserRest> getUser( @PathVariable String userId)
     {
-        String firstName = null;
-        //
-        //
-        int firstNameLength = firstName.length();
+        if(true) throw new UserServiceException("A user service exception is thrown");
 
         if(users.containsKey(userId))
         {
@@ -65,17 +67,8 @@ public class UserController {
                 )
     public ResponseEntity<UserRest> createUser(@Valid @RequestBody UserDetailsRequestModel userDetails)
     {
-        UserRest returnValue = new UserRest();
-        returnValue.setEmail(UserDetails.getEmail());
-        returnValue.setFirstName(UserDetails.getFirstName());
-        returnValue.setLastName(UserDetails.getLastName());
-
-        String userId = UUID.randomUUID(),toString();
-        returnValue.setUserId(userId)
-        
-        if(users == null) users = new HashMap<>();
-        users.put(userId, returnValue)
-        
+       
+        UserRest returnValue = userservice.createUser(userDetails);
         return new ResponseEntity<UserRest>(returnValue, HttpStatus.OK);
     }
 
